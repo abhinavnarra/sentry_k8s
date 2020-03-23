@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentry
+  labels:
+    app: sentry 
+spec:
+  selector:
+    matchLabels:
+      app:  sentry  
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sentry
+    spec:
+      containers:
+      - name: memcached
+        image: memcached:1.4
+      - name: redis
+        image: redis:3.2-alpine
+      - name: postgres
+        image: postgres:9.5
+        volumeMounts:
+          - mountPath: "/var/lib/postgresql"
+            name: postgres-data
+      - name: smtp
+        image: tianon/exim4
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: mycompany-sentry-postgres
